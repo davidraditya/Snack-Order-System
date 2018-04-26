@@ -1,0 +1,150 @@
+tanggal, siapa yg mesen, apa yg mesen
+select date_part ('day', o.tanggal) as tanggal, a.nama, p.nama
+from pembeli a
+inner join melakukan m
+on a.no_hp=m.pembeli_no_hp
+inner join orders o
+on o.order_id=m.order_id
+inner join terdiri_dari t
+on t.order_id=o.order_id
+inner join produk p
+on p.produk_id=t.produk_id
+group by tanggal, a.nama, p.nama
+order by tanggal, a.nama;
+
+order id brapa mesen brapa
+select order_id, sum(kuantitas)
+from terdiri_dari
+group by order_id
+order by order_id;
+
+siapa dianter siapa berdasar tanggal
+select date_part ('day', o.tanggal) as tanggal, a.nama, p.nama
+from pembeli a
+inner join melakukan m
+on a.no_hp=m.pembeli_no_hp
+inner join orders o
+on o.order_id=m.order_id
+inner join diantar d
+on d.order_id=o.order_id
+inner join pengantar p
+on p.no_hp=d.pengantar_no_hp
+group by tanggal, a.nama, p.nama
+order by tanggal, a.nama;
+
+jumlah yg diantar berdasar nama pengantar
+select count(*) as total, p.nama
+from pengantar p
+inner join diantar d
+on d.pengantar_no_hp=p.no_hp
+group by p.nama;
+
+
+
+
+
+---siapa pengantar pesanan NEVI?
+
+proyekakhir_kelompok4=# SELECT pb.nama, pg.nama
+proyekakhir_kelompok4-# FROM pembeli pb, melakukan ml, diantar da, pengantar pg
+proyekakhir_kelompok4-# WHERE pb.no_hp = ml.pembeli_no_hp
+proyekakhir_kelompok4-# AND ml.order_id = da.order_id
+proyekakhir_kelompok4-# AND da.pengantar_no_hp = pg.no_hp
+proyekakhir_kelompok4-# AND pb.nama = 'Nevi';
+
+proyekakhir_kelompok4=# SELECT pb.nama, pg.nama
+proyekakhir_kelompok4-# FROM pembeli pb INNER JOIN melakukan ml ON pb.no_hp = ml.pembeli_no_hp
+proyekakhir_kelompok4-# INNER JOIN diantar da ON ml.order_id = da.order_id
+proyekakhir_kelompok4-# INNER JOIN pengantar pg ON da.pengantar_no_hp = pg.no_hp
+proyekakhir_kelompok4-# WHERE pb.nama = 'Nevi';
+
+
+
+---order terbanyak
+CREATE VIEW highest_order AS
+SELECT MAX(jumlah) AS MAX
+FROM (SELECT SUM(kuantitas) AS jumlah FROM terdiri_dari
+GROUP BY order_id) AS total;
+
+---kuantitas dari order_id
+CREATE VIEW order_quantity AS
+SELECT order_id, sum(kuantitas) AS total_order
+FROM terdiri_dari
+GROUP BY order_id;
+ORDER BY order_id;
+
+---daftar kuantitas order
+proyekakhir_kelompok4=# SELECT pb.nama, oq.* FROM
+proyekakhir_kelompok4-# pembeli pb INNER JOIN melakukan ml ON pb.no_hp = ml.pembeli_no_hp
+proyekakhir_kelompok4-# INNER JOIN order_quantity oq ON ml.order_id = oq.order_id;
+
+
+SELECT p.nama, t.produk_id, sum(t.kuantitas) as jumlah 
+from terdiri_dari t
+inner join produk p
+on p.produk_id = t.produk_id
+group by t.produk_id, p.nama
+order by jumlah desc;
+
+
+
+
+
+
+SELECT pro.nama, td.produk_id, sum(td.kuantitas) as diorder_sebanyak
+FROM terdiri_dari td
+INNER JOIN produk pro
+ON pro.produk_id = td.produk_id
+GROUP BY td.produk_id, pro.nama
+ORDER BY diorder_sebanyak desc;
+
+
+
+
+
+
+
+create view produk_fakultas as
+select o.tempat, t.produk_id, t.kuantitas
+from orders o natural join terdiri_dari t;
+
+
+
+CREATE VIEW produk_dipesan AS
+SELECT od.tempat, td.produk_id, td.kuantitas
+FROM orders od
+NATURAL JOIN terdiri_dari td;
+
+CREATE VIEW urutan_disukai AS
+SELECT pro.nama, pd.* FROM
+produk pro INNER JOIN produk_dipesan pd ON pro.produk_id = pd.produk_id
+GROUP BY pro.nama, pd.kuantitas;
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE VIEW urutan_disukai AS
+SELECT pr.nama, p.fakultas, MAX(t.kuantitas) AS kuantitas 
+FROM pembeli p 
+INNER JOIN melakukan m ON p.no_hp=m.pembeli_no_hp 
+INNER JOIN terdiri_dari t ON m.order_id=t.order_id 
+INNER JOIN produk pr ON pr.produk_id=t.produk_id 
+GROUP BY pr.nama, p.fakultas 
+ORDER BY pr.nama, kuantitas desc;
+
+SELECT uf.nama, uf.fakultas 
+FROM (SELECT nama, MAX(kuantitas) AS Qty 
+FROM urutan_disukai GROUP BY nama) AS
+a INNER JOIN urutanfakultas uf 
+ON a.nama=uf.nama 
+where a.Qty=uf.kuantitas;
+
+

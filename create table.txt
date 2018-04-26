@@ -1,0 +1,64 @@
+create database proyekakhir_kelompok4;
+\connect proyekakhir_kelompok4;
+
+create table pembeli (
+no_hp text not null primary key,
+nama varchar(50) not null,
+fakultas text not null,
+prodi text
+);
+
+create table orders (
+order_id serial not null primary key,
+total int,
+tempat text not null,
+tanggal date,
+waktu time
+);
+
+create table produk (
+produk_id serial not null primary key,
+nama text,
+harga int
+);
+
+create table melakukan (
+pembeli_no_hp text,
+order_id int references orders on delete cascade
+);
+
+create table terdiri_dari (
+order_id int references orders on delete cascade,
+produk_id int,
+kuantitas int
+);
+
+create table diantar (
+pengantar_no_hp text,
+order_id int references orders on delete cascade
+);
+
+create table pengantar (
+nama varchar(50),
+no_hp text primary key
+);
+
+create table login (
+username text not null primary key,
+password text
+);
+
+COPY orders
+FROM 'E:\Tugas\UI\SEM 5\SBD\proyek\csv\orders.csv' DELIMITER ',' CSV HEADER;
+
+COPY melakukan
+FROM 'E:\Tugas\UI\SEM 5\SBD\proyek\csv\melakukan.csv' DELIMITER ',' CSV HEADER;
+
+COPY terdiri_dari
+FROM 'E:\Tugas\UI\SEM 5\SBD\proyek\csv\terdiri_dari.csv' DELIMITER ',' CSV HEADER;
+
+COPY diantar
+FROM 'E:\Tugas\UI\SEM 5\SBD\proyek\csv\diantar.csv' DELIMITER ',' CSV HEADER;
+
+alter sequence produk_produk_id_seq restart with 9;
+alter sequence orders_order_id_seq restart with 33;
